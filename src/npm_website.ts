@@ -10,11 +10,8 @@ function handleErrors(response: Response) {
   return response;
 }
 
-function insertAfter(newNode: HTMLElement, referenceNode: any) {
-  referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-}
-const downloadsSelector =
-  "#top > div.fdbf4038.w-third-l.mt3.w-100.ph3.ph4-m.pv3.pv0-l.order-1-ns.order-0 > div:nth-child(3)";
+console.log("[Centrality Checker] Activated!");
+
 const centralityDOM: any = document.createElement("dev");
 centralityDOM.innerHTML = `
 <div id="centrality-checker">
@@ -32,30 +29,69 @@ centralityDOM.innerHTML = `
 
 const chartDOM = centralityDOM.querySelector("#centrality-chart");
 const rankDOM = centralityDOM.querySelector("#centrality-ranking");
-const isDeclineDOM = centralityDOM.querySelector("#is-centrality-decline");
+const inDeclineDOM = centralityDOM.querySelector("#is-centrality-decline");
 const titleDOM = centralityDOM.querySelector("#centrality-title");
 let mounted = false;
 
 function loading() {
   rankDOM.innerText = "Loading...";
-  isDeclineDOM.innerText = "";
+  inDeclineDOM.innerText = "";
 }
 
 function emptyContainer() {
   chartDOM.innerHTML = "";
-  isDeclineDOM.innerText = "";
+  inDeclineDOM.innerText = "";
   rankDOM.innerText = "No data!";
   centralityDOM.className = "";
 }
 
-function CentralityContainer(pkg_name: string) {
-  console.log("Request centrality:", pkg_name);
-
-  function formatNumber(num: number) {
-    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+function mountCentralityContainer() {
+  if (mounted) {
+    mounted = !!document.getElementById("centrality-checker");
   }
 
+  if (mounted) {
+    return;
+  }
+
+  const targetNode = document.querySelector('svg[stroke="#8956FF"]')?.parentNode
+    ?.parentNode;
+  if (!targetNode) {
+    console.log("[Centrality Checker] Cannot find the downloads DOM.");
+    return;
+  }
+
+  mounted = true;
+  targetNode.parentNode?.insertBefore(centralityDOM, targetNode.nextSibling);
+}
+
+function showCentralityRanking(num: number) {
+  const rank = num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  rankDOM.innerText = rank;
+  return rank;
+}
+
+function showInDecline(months: number) {
+  let isDecline = "";
+  if (!months) {
+    inDeclineDOM.innerText = "";
+    centralityDOM.className = "";
+
+    return isDecline;
+  }
+
+  isDecline = `(In decline ~${months + 5} months)`;
+  inDeclineDOM.innerText = isDecline;
+  centralityDOM.className = "in-decline";
+
+  return isDecline;
+}
+
+function CentralityContainer(pkg_name: string) {
+  console.log("[Centrality Checker] Request data for:", pkg_name);
+
   loading();
+  mountCentralityContainer();
   fetch(
     `https://raw.githubusercontent.com/centrality-checker/storage/master/npm/${pkg_name}`
   )
@@ -63,32 +99,28 @@ function CentralityContainer(pkg_name: string) {
     .then((res) => res.text())
     .then(parseCentralityCSV)
     .then((data) => {
-      let color = "#8955ff";
-      let isDecline = "";
-      let centralityClass = "";
-      let centrality = "";
+      const inDeclineData = data.decline.slice(data.decline.length - 12);
 
-      if (!data.decline.length) {
+      let color = "#8955ff";
+
+      if (!inDeclineData.length) {
         return emptyContainer();
       }
 
-      if (data.decline[data.decline.length - 1] > 0) {
+      if (inDeclineData[inDeclineData.length - 1] > 0) {
         color = "#d9534f";
-        centralityClass = "in-decline";
-        isDecline = ` (In decline ~${
-          data.decline[data.decline.length - 1] + 5
-        } months)`;
       }
 
-      centrality = formatNumber(data.centrality[data.centrality.length - 1]);
+      const isDecline = showInDecline(inDeclineData[inDeclineData.length - 1]);
 
-      isDeclineDOM.innerText = isDecline;
-      centralityDOM.className = centralityClass;
-      rankDOM.innerText = centrality;
+      const centrality = showCentralityRanking(
+        data.centrality[data.centrality.length - 1]
+      );
 
       chartDOM.addEventListener("mouseout", function () {
         rankDOM.innerText = centrality;
-        isDeclineDOM.innerText = isDecline;
+        inDeclineDOM.innerText = isDecline;
+        centralityDOM.className = isDecline ? "in-decline" : "";
         titleDOM.innerText = "Centrality Ranking";
       });
 
@@ -104,13 +136,14 @@ function CentralityContainer(pkg_name: string) {
         },
         tooltip: {
           custom: ({ seriesIndex, series, dataPointIndex, w }: any) => {
-            rankDOM.innerText = formatNumber(
-              series[seriesIndex][dataPointIndex]
-            );
             titleDOM.innerText = format(
               w.config.labels[dataPointIndex],
-              "MMMM yyyy"
+              "MMM yyyy"
             );
+
+            showCentralityRanking(series[seriesIndex][dataPointIndex]);
+            showInDecline(inDeclineData[dataPointIndex]);
+
             return "";
           },
         },
@@ -225,41 +258,22 @@ function CentralityContainer(pkg_name: string) {
       chartDOM.innerHTML = "";
       chart.render();
     })
-    .catch(emptyContainer)
-    .finally(() => {
-      if (mounted) {
-        return;
-      }
-
-      mounted = true;
-      // const downloadsDOM = document.querySelector("#top > div:nth-child(4) > div");
-      const downloadsDOM = document.querySelector(downloadsSelector);
-      if (!downloadsDOM) {
-        console.log("Cannot find the downloads DOM");
-        return;
-      }
-
-      insertAfter(centralityDOM, downloadsDOM);
-    });
+    .catch(emptyContainer);
+  // .finally(mountCentralityContainer);
 }
 
 let pkg_name = location.pathname.substring(9);
 CentralityContainer(pkg_name);
 
 const observer = new MutationObserver((event: any) => {
+  mountCentralityContainer();
+
   const new_pkg_name = location.pathname.substring(9);
-
-  mounted = !!document.getElementById("centrality-checker");
-  if (!mounted) {
-    mounted = true;
-    const downloadsDOM = document.querySelector(downloadsSelector);
-    insertAfter(centralityDOM, downloadsDOM);
-  }
-
   if (new_pkg_name == pkg_name) {
-    console.log("ignore event");
+    console.log("[Centrality Checker] Ignore update event.");
     return;
   }
+
   pkg_name = new_pkg_name;
   CentralityContainer(pkg_name);
 });
