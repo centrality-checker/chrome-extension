@@ -64,7 +64,7 @@ function mountCentralityContainer() {
   console.log("[Centrality Checker] Mounting!");
 
   mounted = true;
-  targetNode.parentNode?.insertBefore(centralityDOM, targetNode.nextSibling);
+  targetNode.insertBefore(centralityDOM, targetNode.nextSibling);
 }
 
 function showCentralityRanking(num: number) {
