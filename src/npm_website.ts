@@ -13,7 +13,8 @@ function handleErrors(response: Response) {
 function insertAfter(newNode: HTMLElement, referenceNode: any) {
   referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
-
+const downloadsSelector =
+  "#top > div.fdbf4038.w-third-l.mt3.w-100.ph3.ph4-m.pv3.pv0-l.order-1-ns.order-0 > div:nth-child(3)";
 const centralityDOM: any = document.createElement("dev");
 centralityDOM.innerHTML = `
 <div id="centrality-checker">
@@ -29,7 +30,7 @@ centralityDOM.innerHTML = `
   </div>
 `;
 
-const ctx = centralityDOM.querySelector("#centrality-chart");
+const chartDOM = centralityDOM.querySelector("#centrality-chart");
 const rankDOM = centralityDOM.querySelector("#centrality-ranking");
 const isDeclineDOM = centralityDOM.querySelector("#is-centrality-decline");
 const titleDOM = centralityDOM.querySelector("#centrality-title");
@@ -40,18 +41,15 @@ function loading() {
   isDeclineDOM.innerText = "";
 }
 
-
-
 function emptyContainer() {
-  ctx.innerHTML = "";
+  chartDOM.innerHTML = "";
   isDeclineDOM.innerText = "";
   rankDOM.innerText = "No data!";
   centralityDOM.className = "";
 }
 
 function CentralityContainer(pkg_name: string) {
-  console.log("request!");
-
+  console.log("Request centrality:", pkg_name);
 
   function formatNumber(num: number) {
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
@@ -88,7 +86,7 @@ function CentralityContainer(pkg_name: string) {
       centralityDOM.className = centralityClass;
       rankDOM.innerText = centrality;
 
-      ctx.addEventListener("mouseout", function () {
+      chartDOM.addEventListener("mouseout", function () {
         rankDOM.innerText = centrality;
         isDeclineDOM.innerText = isDecline;
         titleDOM.innerText = "Centrality Ranking";
@@ -223,49 +221,42 @@ function CentralityContainer(pkg_name: string) {
         },
       };
 
-      const chart = new ApexCharts(ctx, options);
-      ctx.innerHTML = "";
+      const chart = new ApexCharts(chartDOM, options);
+      chartDOM.innerHTML = "";
       chart.render();
     })
     .catch(emptyContainer)
     .finally(() => {
-      if (!mounted) {
-        mounted = true;
-        // var downloads_div = document.querySelector("#top > div:nth-child(4) > div");
-        var downloads_div = document.querySelector("#top > div.fdbf4038.w-third-l.mt3.w-100.ph3.ph4-m.pv3.pv0-l.order-1-ns.order-0 > div:nth-child(3)");
-        if (!downloads_div) {
-          console.log("Cannot find the downloads dom");
-          return;
-        }
-      
-        insertAfter(centralityDOM, downloads_div);
+      if (mounted) {
+        return;
       }
+
+      mounted = true;
+      // const downloadsDOM = document.querySelector("#top > div:nth-child(4) > div");
+      const downloadsDOM = document.querySelector(downloadsSelector);
+      if (!downloadsDOM) {
+        console.log("Cannot find the downloads DOM");
+        return;
+      }
+
+      insertAfter(centralityDOM, downloadsDOM);
     });
 }
 
 let pkg_name = location.pathname.substring(9);
-
 CentralityContainer(pkg_name);
 
-console.log("Start Centrality checker! Number 12");
-
-// const targetNode = document.querySelector("#top > div.fdbf4038.w-third-l.mt3.w-100.ph3.ph4-m.pv3.pv0-l.order-1-ns.order-0") as any;
-
-const observerOptions = {
-  childList: true,
-  // attributes: true,
-
-  // Omit (or set to false) to observe only changes to the parent node
-  subtree: true,
-};
-
 const observer = new MutationObserver((event: any) => {
- 
-
   const new_pkg_name = location.pathname.substring(9);
 
-  mounted = !!document.getElementById("centrality-checker") 
-  if (new_pkg_name == pkg_name && mounted)  {
+  mounted = !!document.getElementById("centrality-checker");
+  if (!mounted) {
+    mounted = true;
+    const downloadsDOM = document.querySelector(downloadsSelector);
+    insertAfter(centralityDOM, downloadsDOM);
+  }
+
+  if (new_pkg_name == pkg_name) {
     console.log("ignore event");
     return;
   }
@@ -273,4 +264,7 @@ const observer = new MutationObserver((event: any) => {
   CentralityContainer(pkg_name);
 });
 
-observer.observe(document, observerOptions);
+observer.observe(document, {
+  childList: true,
+  subtree: true,
+});
