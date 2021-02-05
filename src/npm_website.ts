@@ -1,7 +1,8 @@
 import { parseCentralityCSV } from "./util/parser";
 import { format } from "date-fns";
-
 import ApexCharts from "apexcharts";
+
+console.log("[Centrality Checker] Activated!");
 
 function handleErrors(response: Response) {
   if (!response.ok) {
@@ -10,11 +11,9 @@ function handleErrors(response: Response) {
   return response;
 }
 
-console.log("[Centrality Checker] Activated!");
-
 const centralityDOM: any = document.createElement("dev");
 centralityDOM.innerHTML = `
-<div id="centrality-checker">
+  <div id="centrality-checker">
     <h3 class="c84e15be f5 mt2 pt2 mb0 black-50 _5cfc0900">
     <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M239.1 6.3l-208 78c-18.7 7-31.1 25-31.1 45v225.1c0 18.2 10.3 34.8 26.5 42.9l208 104c13.5 6.8 29.4 6.8 42.9 0l208-104c16.3-8.1 26.5-24.8 26.5-42.9V129.3c0-20-12.4-37.9-31.1-44.9l-208-78C262 2.2 250 2.2 239.1 6.3zM256 68.4l192 72v1.1l-192 78-192-78v-1.1l192-72zm32 356V275.5l160-65v133.9l-160 80z"></path></svg><span id="centrality-title">Centrality Ranking</span>
     <span id="is-centrality-decline"></span>
@@ -51,6 +50,7 @@ function mountCentralityContainer() {
   }
 
   if (mounted) {
+    console.log("[Centrality Checker] Mounted!");
     return;
   }
 
@@ -60,6 +60,8 @@ function mountCentralityContainer() {
     console.log("[Centrality Checker] Cannot find the downloads DOM.");
     return;
   }
+
+  console.log("[Centrality Checker] Mounting!");
 
   mounted = true;
   targetNode.parentNode?.insertBefore(centralityDOM, targetNode.nextSibling);
@@ -259,17 +261,18 @@ function CentralityContainer(pkg_name: string) {
       chart.render();
     })
     .catch(emptyContainer);
-  // .finally(mountCentralityContainer);
 }
 
 let pkg_name = location.pathname.substring(9);
-CentralityContainer(pkg_name);
+if (pkg_name) {
+  CentralityContainer(pkg_name);
+}
 
 const observer = new MutationObserver((event: any) => {
   mountCentralityContainer();
 
   const new_pkg_name = location.pathname.substring(9);
-  if (new_pkg_name == pkg_name) {
+  if (!new_pkg_name || new_pkg_name == pkg_name) {
     console.log("[Centrality Checker] Ignore update event.");
     return;
   }
