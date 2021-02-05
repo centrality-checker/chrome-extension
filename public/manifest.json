@@ -15,5 +15,8 @@
   "permissions": [],
   "host_permissions": [
     "https://raw.githubusercontent.com/"
-  ]
+  ],
+  "icons": {
+    "128": "/images/logo_128.png"
+  }
 }
