@@ -30,7 +30,7 @@ Then, install the dependencies:
 npm install
 ```
 
-To build for development environment and automatically update when you modify the source code:
+To build for the development environment and automatically update when you modify the source code:
 
 ```sh
 npm run watch
@@ -44,4 +44,4 @@ npm run build
 
 The `watch` command requires installing [Extensions Reloader](https://chrome.google.com/webstore/detail/extensions-reloader/fimgfedafeadlieiabdeeaodndnlbhid) to reload the unpacked extension automatically after source code modifications.
 
-The build result always will be in `./dist`.
+The build artifacts will be in `./dist`.
