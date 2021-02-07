@@ -1,11 +1,11 @@
 {
   "name": "Centrality Checker",
   "description": "See the centrality of npm packages and check if a package is in decline.",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "manifest_version": 3,
   "content_scripts": [
     {
-      "matches": ["https://www.npmjs.com/package/*"],
+      "matches": ["https://www.npmjs.com/*"],
       "run_at": "document_idle",
       "js": ["vendor.js", "npm_website.js"],
       "css": ["npm_website.css"]
