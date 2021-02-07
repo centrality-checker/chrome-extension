@@ -1,5 +1,5 @@
 import { parseCentralityCSV } from "./util/parser";
-import { format } from "date-fns";
+import format  from "date-fns/format";
 import ApexCharts from "apexcharts";
 
 console.log("[Centrality Checker] Activated!");
