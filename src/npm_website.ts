@@ -51,7 +51,7 @@ function FetchAndEmbedCentrality(pkg_name: string) {
     .catch(() => constrainer.emptyContainer());
 }
 
-function getPackagePage() {
+function getPackageName() {
   if (location.pathname.substring(0, 9) !== "/package/") {
     return null;
   }
@@ -59,27 +59,27 @@ function getPackagePage() {
   return location.pathname.substring(9);
 }
 
-let pkg_name = getPackagePage();
-if (pkg_name) {
-  FetchAndEmbedCentrality(pkg_name);
+let packageName = getPackageName();
+if (packageName) {
+  FetchAndEmbedCentrality(packageName);
 }
 
 const observer = new MutationObserver(() => {
-  const new_pkg_name = getPackagePage();
-  if (!new_pkg_name) {
+  const newPackageName = getPackageName();
+  if (!newPackageName) {
     console.log("[Centrality Checker] Ignore update event: not a package.");
     return;
   }
 
   mountCentralityContainer();
 
-  if (new_pkg_name == pkg_name) {
+  if (newPackageName == packageName) {
     console.log("[Centrality Checker] Ignore update event: same package.");
     return;
   }
 
-  pkg_name = new_pkg_name;
-  FetchAndEmbedCentrality(pkg_name);
+  packageName = newPackageName;
+  FetchAndEmbedCentrality(packageName);
 });
 
 observer.observe(document, {
