@@ -11,3 +11,10 @@
   margin-right: -10px;
 }
 
+.apexcharts-tooltip,
+.apexcharts-tooltip.apexcharts-active,
+.apexcharts-xaxistooltip,
+.apexcharts-xaxistooltip.apexcharts-active,
+.apexcharts-marker {
+  transition: none !important;
+}
