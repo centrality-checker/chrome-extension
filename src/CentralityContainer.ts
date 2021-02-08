@@ -83,7 +83,13 @@ export default class CentralityContainer {
       return;
     }
 
-    if (inDeclineData[inDeclineData.length - 1] > 0) {
+    this.showInDecline(inDeclineData[inDeclineData.length - 1]);
+    this.showCentralityRanking(data.centrality[data.centrality.length - 1]);
+
+    const originalRank = this.rankDOM.innerText;
+    const originalInDecline = this.inDeclineDOM.innerText;
+
+    if (originalInDecline) {
       color = "#d9534f";
     }
 
@@ -217,11 +223,7 @@ export default class CentralityContainer {
       },
     };
 
-    this.showInDecline(inDeclineData[inDeclineData.length - 1]);
-    this.showCentralityRanking(data.centrality[data.centrality.length - 1]);
 
-    const originalRank = this.rankDOM.innerText;
-    const originalInDecline = this.inDeclineDOM.innerText;
     this.chartDOM.addEventListener("mouseout", () => {
       this.rankDOM.innerText = originalRank;
       this.inDeclineDOM.innerText = originalInDecline;
