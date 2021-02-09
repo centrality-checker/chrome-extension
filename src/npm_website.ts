@@ -53,6 +53,7 @@ function FetchAndEmbedCentrality(pkg_name: string) {
 
 function getPackageName() {
   if (location.pathname.substring(0, 9) !== "/package/") {
+    console.log("[Centrality Checker] Not a package page.");
     return null;
   }
 
@@ -67,7 +68,6 @@ if (packageName) {
 const observer = new MutationObserver(() => {
   const newPackageName = getPackageName();
   if (!newPackageName) {
-    console.log("[Centrality Checker] Ignore update event: not a package.");
     return;
   }
 
@@ -83,6 +83,6 @@ const observer = new MutationObserver(() => {
 });
 
 observer.observe(document, {
-  childList: true,
   subtree: true,
+  characterData: true,
 });
