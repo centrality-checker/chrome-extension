@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: "Towards Using Package Centrality Trend to Identify Packages in Decline"
+authors:
+- family-names: "Mujahid"
+  given-names: "Suhaib"
+  orcid: "https://orcid.org/0000-0003-2738-1387"
+- family-names: "Costa"
+  given-names: "Diego Elias"
+- family-names: "Abdalkareem"
+  given-names: "Rabe"
+- family-names: "Shihab"
+  given-names: "Emad"
+- family-names: "Saied"
+  given-names: "Mohamed Aymen"
+- family-names: "Adams"
+  given-names: "Bram"
+year: 2021
+eprint: "2107.10168"
+archiveprefix: "arXiv"
+primaryclass: "cs.SE"
